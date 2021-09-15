@@ -341,6 +341,7 @@ const data = {
     {name: 3, children: [{name: '3-1'},{name:'3-2'}]}
   ]
 }
+// 深度优先
 let deepTraversal1 = (node, nodeList = []) => {
   if (node !== null) {
     nodeList.push(node)

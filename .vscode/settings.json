@@ -8,6 +8,6 @@
         // "javascriptreact",
         // "typescript",
         "vue",
-        "html"
+        // "html"
     ]
 }

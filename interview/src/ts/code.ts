@@ -47,13 +47,13 @@ console.log([1,2].forkmap2(function(this:any,item, index, arr){
 */
 const request = (url:string) => {
   return new Promise((resolve, reject)=>{
-      if (Math.floor(Math.random() * 10) === 2) {
-        reject(url)
-      }else {
-        setTimeout(()=>{
-          resolve(url)
-        }, Math.floor(Math.random() * 10) * 100)
-      }
+    if (Math.floor(Math.random() * 10) === 2) {
+      reject(url)
+    }else {
+      setTimeout(()=>{
+        resolve(url)
+      }, Math.floor(Math.random() * 10) * 100)
+    }
   })
 }
 const multiRequest = (urls: string[], maxNum:number) => {
@@ -212,10 +212,10 @@ type myPartial<T> = { [K in keyof T]?: T[K] }
 /**promise then怎么实现的链式调用，
  * 怎么优雅的实现链式调用，一个类，
  * 怎么去添加链式调用方法 */
- console.log('######promise start#####')
+console.log('######promise start#####')
 
- // promise能实现链式调用的原因是因为then方法返回的就是一个promise
- class Sum {
+// promise能实现链式调用的原因是因为then方法返回的就是一个promise
+class Sum {
    [prop: string]: any
    value = 1
    add () {
@@ -227,11 +227,11 @@ type myPartial<T> = { [K in keyof T]?: T[K] }
      return this
    }
    addMethod (name: string, fn:Function) {
-    this[name] = fn
-    return this
+     this[name] = fn
+     return this
    }
- }
- const sum = new Sum()
+}
+const sum = new Sum()
 sum.addMethod('haha', function(this:any){
   console.log('我是动态添加方法---haha')
   return this
@@ -239,7 +239,7 @@ sum.addMethod('haha', function(this:any){
 console.log('实现链式调用----',sum.haha().add().add().value)
 
 /**await 后面跟promsie 如果直接rejetc不catch的话是会直接报错，不执行下面的代码的  */
- async function test () {
+async function test () {
   console.log('1')
   await new Promise((resolve, reject) => {
     reject(2)
@@ -266,9 +266,9 @@ class _Promise {
     this.rejectCallbacks = []
     const resolve = (value:any) => {
       if (this.status === PENDING) {
-       this.status = FULFILLED
-       this.value = value
-       this.resolveCallbacks.forEach(fn => fn())
+        this.status = FULFILLED
+        this.value = value
+        this.resolveCallbacks.forEach(fn => fn())
       }
     }
     const reject = (reason:any) => {
@@ -439,8 +439,8 @@ class Count {
     const inintValue = cha * this.ratesList[level].price
     return this.ratesList.reduce((pre:any, cur, index, arr)=>{
       if (level > index) {
-          const num = index > 0 ? cur.number - (arr[index -1].number) : cur.number
-          return pre + num * cur.price
+        const num = index > 0 ? cur.number - (arr[index -1].number) : cur.number
+        return pre + num * cur.price
       }else {
         return pre
       }
@@ -472,9 +472,9 @@ while((new Date() as any-date) < 3000){
  * 这样就会形成一个块级作用域（顺带讲下es6以前的作用域概念）
  */
 for (var i = 0; i < 5; i++) {
-    setTimeout(function() {
-      console.log(i);
-    }, i * 1000);
+  setTimeout(function() {
+    console.log(i);
+  }, i * 1000);
 }
 
 /** 原型继承和class继承的区别
@@ -482,7 +482,7 @@ for (var i = 0; i < 5; i++) {
  *
  */
 // 寄生组合模式
- function inherit(SubType:any, SuperType:any) {
+function inherit(SubType:any, SuperType:any) {
   const proto = Object.create(SuperType.prototype);
   proto.constructor = SubType  // 修复构造函数指向
   SubType.prototype = proto

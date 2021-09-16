@@ -28,7 +28,7 @@ class Component {
 class Component2 {
   constructor (name: string) {}
 }
-console.log(new Component('aa'), new Component2('aa'))
+console.log('public的作用', new Component('aa'), new Component2('aa'))
 
 class Frame implements IterableIterator<Component> {
   private pointer = 0

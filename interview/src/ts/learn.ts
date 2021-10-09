@@ -17,9 +17,7 @@ class Child extends Adder {
     return this.add(b)
   }
 }
-console.log(Child)
 const child = new Child(1234)
-console.log(child.callAdd(123))
 
 
 class Component {
@@ -28,7 +26,7 @@ class Component {
 class Component2 {
   constructor (name: string) {}
 }
-console.log('public的作用', new Component('aa'), new Component2('aa'))
+// console.log('public的作用', new Component('aa'), new Component2('aa'))
 
 class Frame implements IterableIterator<Component> {
   private pointer = 0
@@ -63,7 +61,7 @@ for ( let cmp of frame) {
   console.log(cmp)
 }
 
-console.log(frame.next(), frame.next())
+// console.log(frame.next(), frame.next())
 
 class fib implements IterableIterator<number> {
   protected fn1 = 0
@@ -90,11 +88,11 @@ class fib implements IterableIterator<number> {
 }
 
 const fibMax20 = new fib(20)
-console.log(Array.from(fibMax20))
+// console.log(Array.from(fibMax20))
 
 const promiseArray = [Promise.resolve(3), Promise.resolve(4)]
 const p = Promise.race(promiseArray)
-console.log(p)
+// console.log(p)
 
 setTimeout(()=>{
   console.log('this stack is now empty')
@@ -114,7 +112,7 @@ class Mypoint implements Point {
   z: number = 3
 }
 let foo:Point = new Mypoint()
-console.log('implements point', foo)
+// console.log('implements point', foo)
 
 // 你可以使用接口声明所有“疯狂的”的JavaScript，
 // 甚至可以安全地在TypeScript中使用它们。
@@ -148,7 +146,7 @@ const complex:Complex = (foo: any, bar?: number, ...otherAgr: boolean[]): any =>
     return 2
   }
 }
-console.log(complex(2))
+// console.log(complex(2))
 
 interface NewTostring {
   new () : string
@@ -280,7 +278,7 @@ class TestStatic {
   }
 }
 
-console.log(TestStatic.getName())
+// console.log(TestStatic.getName())
 
 // 泛型的实例化类型
 class Foo<T> {
@@ -288,14 +286,14 @@ class Foo<T> {
 }
 const FooNumber = Foo as { new ():Foo<number> }
 const FooNumber2 = new Foo<number>()
-console.log(FooNumber, FooNumber2)
+// console.log(FooNumber, FooNumber2)
 
 function id<T> (x:T) {
   return x
 }
 
 const idNum = id as { (x:number): number }
-console.log(idNum)
+// console.log(idNum)
 
 // 单例模式
 class Singleton {
@@ -309,4 +307,4 @@ class Singleton {
   }
 }
 
-console.log(Singleton.getInstance(), 2)
+// console.log(Singleton.getInstance(), 2)

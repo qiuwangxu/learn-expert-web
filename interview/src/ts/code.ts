@@ -132,22 +132,22 @@ multiRequest2(['a','b','c','d','e','f'], 3).then((res) => {
 })
 
 
-/**阻止事件冒泡和阻止默认事件 */
-const stopBubble = function (e:Event) {
-  if (e&&e.stopPropagation) {
-    e.stopPropagation()
-  } else {
-    (window.event as any).cancelBubble = true
-  }
-}
+// /**阻止事件冒泡和阻止默认事件 */
+// const stopBubble = function (e:Event) {
+//   if (e&&e.stopPropagation) {
+//     e.stopPropagation()
+//   } else {
+//     (window.event as any).cancelBubble = true
+//   }
+// }
 
-const preventDefault = function (e:Event) {
-  if (window.event) {
-    window.event.returnValue = false
-  } else {
-    e.preventDefault()
-  }
-}
+// const preventDefault = function (e:Event) {
+//   if (window.event) {
+//     window.event.returnValue = false
+//   } else {
+//     e.preventDefault()
+//   }
+// }
 
 
 /**js 插入大量dom优化，渲染1万条数据 */
@@ -486,7 +486,7 @@ function inherit(SubType:any, SuperType:any) {
   const proto = Object.create(SuperType.prototype);
   proto.constructor = SubType  // 修复构造函数指向
   SubType.prototype = proto
-  console.log(proto)
+  console.log('object.create',proto)
 }
 function Super(this:any, name:any) {
   this.name = name
@@ -505,6 +505,152 @@ Sub.prototype.fun11 = function() {
 const sub1 = new (Sub as any)('xql')
 console.log(sub1);
 
+// 函数防抖
+const debounce = function (fn:Function, wait = 300) {
+  let timer:any = null
+  return function (this:any) {
+     const context:any = this
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(()=>{
+      fn.call(context, arguments)
+      timer = null
+    }, wait)
+  }
+}
+
+// 函数节流
+const throttle = function (fn:Function, wait = 3000) {
+  let isCan:any
+  return function (this:any) {
+    if (!isCan) {
+      fn.call(this, arguments)
+      isCan = setTimeout(()=>{
+        isCan = null
+      },wait)
+    }
+  }
+}
+// 函数深拷贝
+function deepClone (source: any) {
+  if (!source && typeof source !== 'object') {
+    throw new Error('error arguments')
+  }
+  const targetObj:any = Array.isArray(source) ? [] : {}
+  Object.keys(source).forEach(keys => {
+    if (source[keys] && typeof source[keys] === 'object') {
+      targetObj[keys] = deepClone(source[keys])
+    } else {
+      targetObj[keys] = source[keys]
+    }
+  })
+  return targetObj
+}
+
+
+const longeStr = function (str:string) {
+  const obj:any = {}
+  let len = str.length
+  for(let i = 0; i<str.length; i++) {
+    if (!obj[str.charAt(i)]) {
+      obj[str.charAt(i)] =1
+    }else{
+      obj[str.charAt(i)]++
+    }
+  }
+  let mes = ''
+  let isMax = 0
+  for (let i in obj) {
+    if (obj[i] > isMax) {
+      isMax = obj[i]
+      mes = i
+    }
+  }
+  return mes
+}
+
+class Event {
+  private sub: Array<Function>
+  constructor () {
+    this.sub = []
+  }
+  on(cb:Function) {
+    const obj:any = {
+      name: cb.name,
+      cb
+    }
+    this.sub.push(obj)
+  }
+  emit(...args:any) {
+    this.sub.forEach((item:any)=>{
+      item.cb(...args)
+    })
+  }
+  off (cb:Function) {
+    const name = cb.name
+    const index = this.sub.findIndex((item:any)=>{
+      item.name = name
+    })
+    this.sub.splice(index, 1)
+  }
+}
+
+const exampleEvent = new Event();
+const foo = (x:any, y:any) => {
+  console.log('aaaaaa',x, y);
+};
+const bar = (x:any, y:any) => {
+  console.log('bbbbb', y, x);
+};
+exampleEvent.on(foo);
+exampleEvent.on(bar);
+exampleEvent.emit(1, 2); //内部执行 foo(1,2); bar(1,2);
+// 1,2
+// 2,1
+exampleEvent.off(foo);
+exampleEvent.emit(1, 2);
+
+
+
+
+class TaskPool {
+  private task:Array<any>
+  constructor () {
+    this.task = []
+  }
+    // 设计 delayRun() 方法，支持链式操作，注意 delayTime 是间隔时长
+    delayRun(delayTime:number, callback:Function) {
+       console.log('register', delayTime, callback.name)
+        this.task.push(
+          ()=>{
+            setTimeout(()=>{
+              Promise.resolve().then(
+                callback()
+              )
+            }, delayTime)
+          }
+        )
+      return this
+    }
+  }
+
+  const instance = new TaskPool();
+
+  instance
+    .delayRun(3000, function task1() {
+      console.log("run log 1");
+    })
+    .delayRun(2000, function task2() {
+      console.log("run log 2");
+    })
+    .delayRun(1000, function task3() {
+      console.log("run log 3");
+    });
+
+  setTimeout(() => {
+    instance.delayRun(10, function task4() {
+      console.log("run log 4");
+    });
+  }, 4000);
 
 
 

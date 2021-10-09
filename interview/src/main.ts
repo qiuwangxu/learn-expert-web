@@ -17,7 +17,7 @@ const importAll = (ctx:any)=> {
 
 const allJs = importAll(ctx)
 
-console.log(allJs)
+console.log('所有文件暴露方法',allJs)
 
 
 

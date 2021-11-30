@@ -4,10 +4,15 @@ const path = require('path');
 const send = require('koa-send');
 const Router = require('koa-router');
 
-const template = fs.readFileSync(path.join(__dirname,'src/index.template.html'), 'utf-8')
+const template = fs.readFileSync(path.join(__dirname,'src/index.template.html'), 'utf-8');
 
-const renderer = require('vue-server-renderer').createRenderer({
-  template 
+const serverBundle = require('./dist/vue-ssr-server-bundle.json');
+const clientManifest = require('./dist/vue-ssr-client-manifest.json')
+
+const renderer = require('vue-server-renderer').createRenderer(serverBundle, {
+  runInNewContext: false,
+  template,
+  clientManifest
 });
 
 // 引入app.js
@@ -16,6 +21,8 @@ const createApp = require(path.join(__dirname, 'src/app'));
 const port = 8090;
 const app = new Koa();
 const router = new Router();
+
+const render = async ()
 
 router.get('*', async (ctx, next) => {
   try {

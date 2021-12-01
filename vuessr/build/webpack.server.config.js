@@ -1,12 +1,12 @@
 const path = require('path');
 const webpack = require('webpack');
-const WebpackMerge = require('webpack-merge');
+const merge = require('webpack-merge');
 const nodeExternals = require('webpack-node-externals');
 const baseConfig = require('./webpack.base.config');
 
 const VueSSRServerPlugin = require('vue-server-renderer/server-plugin');
 
-module.exports = WebpackMerge.merge(baseConfig, {
+module.exports = merge(baseConfig, {
   entry: path.resolve(__dirname, '../src/entry-server.js'),
   /*
    允许webpack以Node适用方式(Node-appropriate fashion)处理动态导入(dynamic import)，

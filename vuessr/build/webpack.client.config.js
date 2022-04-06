@@ -1,14 +1,14 @@
 const path = require('path')
 const webpack = require('webpack')
-const WebpackMerge = require('webpack-merge')
+const merge = require('webpack-merge')
 const baseWebpackConfig = require('./webpack.base.config.js')
 // css样式提取单独文件
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // 服务端渲染用到的插件、默认生成JSON文件(vue-ssr-client-manifest.json)
 const VueSSRClientPlugin = require('vue-server-renderer/client-plugin')
 
-module.exports = WebpackMerge.merge(baseWebpackConfig, {
-  mode: 'production',
+module.exports = merge(baseWebpackConfig, {
+  mode: process.env.NODE_ENV || 'development',
   output: {
     // chunkhash是根据内容生成的hash, 易于缓存,
     // 开发环境不需要生成hash，目前先不考虑开发环境，后面详细介绍
@@ -23,7 +23,7 @@ module.exports = WebpackMerge.merge(baseWebpackConfig, {
         use: [MiniCssExtractPlugin.loader, 'css-loader', 'stylus-loader']
       },
       {
-        test: /\.css?$/,
+        test: /\.css$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader']
       },
     ]
@@ -36,7 +36,7 @@ module.exports = WebpackMerge.merge(baseWebpackConfig, {
       chunkFilename: 'static/css/[name].[contenthash].css'
     }),
     //  当vendor模块不再改变时, 根据模块的相对路径生成一个四位数的hash作为模块id
-    new webpack.ids.HashedModuleIdsPlugin(),
+    new webpack.HashedModuleIdsPlugin(),
     new VueSSRClientPlugin()
   ]
 })

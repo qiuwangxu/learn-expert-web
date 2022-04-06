@@ -1,49 +1,78 @@
+const Vue = require('vue');
 const fs = require('fs');
 const Koa = require('koa')
 const path = require('path');
 const send = require('koa-send');
 const Router = require('koa-router');
+const { createBundleRenderer } = require('vue-server-renderer');
 
-const template = fs.readFileSync(path.join(__dirname,'src/index.template.html'), 'utf-8');
+// 监听文件变化
+const devConfig = require('./build/dev.config.js')
 
-const serverBundle = require('./dist/vue-ssr-server-bundle.json');
-const clientManifest = require('./dist/vue-ssr-client-manifest.json')
-
-const renderer = require('vue-server-renderer').createRenderer(serverBundle, {
-  runInNewContext: false,
-  template,
-  clientManifest
-});
-
-// 引入app.js
-const createApp = require(path.join(__dirname, 'src/app'));
+let renderer
 
 const port = 8090;
 const app = new Koa();
 const router = new Router();
 
-const render = async ()
+if (process.env.NODE_ENV === 'production') {
+    const template = fs.readFileSync(path.join(__dirname,'src/index.template.html'), 'utf-8');
+    const serverBundle = require('./dist/vue-ssr-server-bundle.json');
+    const clientManifest = require('./dist/vue-ssr-client-manifest.json');
 
-router.get('*', async (ctx, next) => {
-  try {
-    const app = createApp(ctx)
-    const context = {
-      title: 'vue服务器渲染组件',
-      meta: `
-        <meta charset = "utf-8">
-        <meta name = "" content="vue服务器渲染组件">
-      `
+    renderer = createBundleRenderer(serverBundle, {
+        runInNewContext: false, // 推荐
+        template: template, // 页面模板
+        clientManifest // 客户端构建 manifest
+    });
+
+    router.get('/static/*', async (ctx, next) => {
+        await send(ctx, ctx.path, {root: __dirname + '/./dist'})
+    });
+} else {
+    const template = path.resolve(__dirname, './src/index.template.html')
+    devConfig(app, template, (bundle, options)=> {
+        console.log('开发环境重新打包....')
+        const option = Object.assign({
+            runInNewContext: false
+        }, options)
+        renderer = createBundleRenderer(bundle, option)
+    })
+}
+
+const renders = async (ctx, next) => {
+    ctx.set('Content-Type', 'text/html')
+    const handleError = err => {
+        if (err.code === 404) {
+            ctx.status = 404
+            ctx.body = '404 page not found'
+        } else {
+            ctx.status = 500
+            ctx.body = '500 internal server error'
+            console.log(err.stack)
+        }
     }
-    const html = await renderer.renderToString(app, context)
-    ctx.status = 200
-    ctx.body = html
-  } catch (e) {
-      console.log(e)
-    ctx.status = 500
-    ctx.body = '服务器错误'
-  }
-  
-});
+    const context = {
+        url: ctx.url,
+        title: 'vue服务器渲染组件',
+        meta: `
+            <meta charset = "utf-8">
+            <meta name = "" content="vue服务器渲染组件">
+        `
+    }
+    try {
+        const html = await renderer.renderToString(context)
+        ctx.status = 200
+        ctx.body = html
+    } catch (e) {
+        handleError(e)
+    }
+    next()
+}
+
+
+
+router.get('*', renders)
 
 app
   .use(router.routes());

@@ -13,7 +13,7 @@ export function createRouter () {
             },
             {
                 path: '/item',
-                component: ()=> import('../components/home.vue')
+                component: ()=> import('../components/item.vue')
             },
             {
                 path: '*',

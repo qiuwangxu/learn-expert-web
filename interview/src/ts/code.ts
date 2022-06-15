@@ -368,6 +368,88 @@ class _Promise {
   }
 }
 
+class myPromise {
+  private status: string
+  private value: string | undefined
+  private reason: string | undefined
+  private resolveCallbacks: Array<Function>
+  private rejectCallbacks:  Array<Function>
+
+  constructor(exectur: Function) {
+    this.status = PENDING
+    this.value = undefined
+    this.reason = undefined
+    this.resolveCallbacks = []
+    this.rejectCallbacks = []
+    const reslove = (value) => {
+      if (this.status === PENDING) {
+        this.status = FULFILLED
+        this.value = value
+        this.resolveCallbacks.forEach(fn=>fn())
+      }
+    }
+    const reject = (reason) => {
+      if (this.status === PENDING) {
+        this.status = REJECTED
+        this.reason = reason
+        this.rejectCallbacks.forEach(fn=>fn())
+      }
+    }
+    try {
+      exectur(reslove, reject)
+    } catch (error) {
+      reject(error)
+    }
+  }
+  resolvPromise (promise:any, callback:any, reslove:any,reject:any) {
+    if (promise===callback) return reject(new TypeError('循环引用'))
+    if(callback!==null && (typeof callback=== 'object' || typeof callback=== 'function')) {
+      try {
+        let then = callback.then
+        if (typeof then === 'function') {
+          then.call(callback, (r:any)=>{
+            this.resolvPromise(promise, r,reslove,  reject)
+          }, (e:any)=>{
+            reject(e)
+          })
+        } else {
+          reslove(callback)
+        }
+      } catch (error) {
+        reject(error)
+      }
+    } else {
+      reslove(callback)
+    }
+  }
+  then(onReslove?:any, onReject?:any) {
+   const onResloves = typeof onReslove === 'function' ? onReslove : (v:any)=>v
+   const onRejects = typeof onReject === 'function' ? onReject : (err:any)=> {throw err}
+   const promise2 = new myPromise((resolve:any, reject:any)=>{
+    if (this.status === PENDING) {
+      this.resolveCallbacks.push(()=>{
+       const callback = onReslove(this.value)
+       this.resolvPromise(promise2, callback, resolve, reject)
+      })
+      this.rejectCallbacks.push(()=>{
+        const callback =onReject(this.reason)
+       this.resolvPromise(promise2, callback, resolve, reject)
+      })
+    }
+     if (this.status === FULFILLED) {
+      const callback =onReslove(this.value)
+       this.resolvPromise(promise2, callback, resolve, reject)
+     }
+     if (this.status === PENDING) {
+      const callback =onReject(this.reason)
+       this.resolvPromise(promise2, callback, resolve, reject)
+     }
+   })
+   return promise2
+  }
+
+
+}
 const b = new _Promise((resolve:any, reject:any)=>{
   setTimeout(() => {
     resolve('_promise 666666')
@@ -406,9 +488,8 @@ const fibonicc = (n:number):number => {
   return fibonicc(n-1) + fibonicc(n-2)
 }
 const fibonicc2= (n:number, res1 = 1, res2 = 1):number => {
-  if (n<1) return n
-  if (n<=2) return res2
-  return fibonicc2(n-1, res1, res1+ res2)
+  if (n<=1) return res2
+  return fibonicc2(n-1, res2, res1+ res2)
 }
 
 /**  实现一个函数，用于计算用户一个月共计交费多少港元 */
